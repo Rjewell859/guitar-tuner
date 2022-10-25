@@ -1,0 +1,177 @@
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+Setup:
+
+baud        CON     9600
+
+INPUT 15
+
+'Error occurs below 115 Hz and result is tripled?
+
+Main:
+
+
+HOLD:
+IF (IN15 = 0) THEN HOLD
+
+  COUNT 15,500,W1
+  COUNT 15,500,W2
+
+  W1 = W1 * 2
+  W2 = W2 * 2
+
+    IF W2<W1 AND W1-W2>90 THEN Main
+    IF W1<W2 AND W2-W1>90 THEN Main
+
+    W1=W1+W2
+    W1 = W1 / 2   'Average frequency
+
+    IF W1 < 45 THEN Main
+
+    DEBUG "Frequency: ", DEC W1, " Hz.", CR
+
+    SELECT W1
+      CASE 78 TO 88          '82.41
+        DEBUG "E", CR
+        GOTO LowE
+      CASE 104 TO 116        '110.0
+        DEBUG "A", CR
+        GOTO A
+      CASE 138 TO 154         '146.83
+        DEBUG "D", CR
+        GOTO D
+      CASE 185 TO 205          '196.0
+        DEBUG "G", CR
+        GOTO G
+      CASE 230 TO 260 '246.94
+        DEBUG "B", CR
+        GOTO B
+      CASE 310 TO 350 '329.63
+        DEBUG "E", CR
+        GOTO HighE
+    ENDSELECT
+
+  GOTO Main
+
+  TuneUp:
+    HIGH 11
+    DEBUG "Tune up!", CR
+    GOTO Clear
+
+
+  TuneDown:
+    HIGH 9
+    DEBUG "Tune down!", CR
+    GOTO Clear
+
+  GreenLight:
+    HIGH 10
+    DEBUG "In tune!", CR
+    GOTO Clear
+
+  LowE:
+    HIGH 1
+    HIGH 2
+    HIGH 4
+    HIGH 5
+    HIGH 6
+
+    IF W1 < 81 THEN
+        GOTO TuneUp
+        ELSEIF W1 > 85 THEN
+        GOTO TuneDown
+        ELSE
+        GOTO GreenLight
+        ENDIF
+
+  HighE:
+    HIGH 1
+    HIGH 2
+    HIGH 4
+    HIGH 5
+    HIGH 6
+
+    IF W1 < 324 THEN
+        GOTO TuneUp
+        ELSEIF W1 >335 THEN
+        GOTO TuneDown
+        ELSE
+        GOTO GreenLight
+        ENDIF
+  A:
+    HIGH 0
+    HIGH 2
+    HIGH 3
+    HIGH 4
+    HIGH 5
+    HIGH 6
+
+    IF W1 < 108 THEN
+        GOTO TuneUp
+        ELSEIF W1 > 112 THEN
+        GOTO TuneDown
+        ELSE
+        GOTO GreenLight
+        ENDIF
+  D:
+    HIGH 0
+    HIGH 1
+    HIGH 2
+    HIGH 3
+    HIGH 6
+
+    IF W1 < 144 THEN
+        GOTO TuneUp
+        ELSEIF W1 > 149 THEN
+        GOTO TuneDown
+        ELSE
+        GOTO GreenLight
+        ENDIF
+
+  G:
+    HIGH 0
+    HIGH 1
+    HIGH 3
+    HIGH 4
+    HIGH 5
+    HIGH 6
+
+    IF W1 < 192 THEN
+        GOTO TuneUp
+        ELSEIF W1 > 200 THEN
+        GOTO TuneDown
+        ELSE
+        GOTO GreenLight
+        ENDIF
+
+  B:
+    HIGH 0
+    HIGH 1
+    HIGH 2
+    HIGH 3
+    HIGH 4
+    HIGH 5
+    HIGH 6
+
+    IF W1 < 242 THEN
+        GOTO TuneUp
+        ELSEIF W1 > 250 THEN
+        GOTO TuneDown
+        ELSE
+        GOTO GreenLight
+        ENDIF
+
+  Clear:
+    PAUSE 3000
+    LOW 0
+    LOW 1
+    LOW 2
+    LOW 3
+    LOW 4
+    LOW 5
+    LOW 6
+    LOW 9
+    LOW 10
+    LOW 11
+    RETURN
